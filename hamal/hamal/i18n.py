@@ -18,11 +18,11 @@ See http://docs.openstack.org/developer/oslo.i18n/usage.html .
 
 """
 
-import oslo_i18n as i18n
+import oslo_i18n
 
 DOMAIN = 'hamal'
 
-_translators = i18n.TranslatorFactory(domain=DOMAIN)
+_translators = oslo_i18n.TranslatorFactory(domain=DOMAIN)
 
 # The primary translation function using the well-known name "_"
 _ = _translators.primary
