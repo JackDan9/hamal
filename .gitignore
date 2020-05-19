@@ -1,0 +1,14 @@
+#node_modules
+/hamal-dashboard-ts/node_modules
+
+# System Files
+.DS_Store
+
+
+#IDE VSCode Files
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
