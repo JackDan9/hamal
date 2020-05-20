@@ -6,6 +6,7 @@
 
 
 #IDE VSCode Files
+/hamal-dashboard-ts/.vscode/*
 .vscode/*
 !.vscode/settings.json
 !.vscode/tasks.json
