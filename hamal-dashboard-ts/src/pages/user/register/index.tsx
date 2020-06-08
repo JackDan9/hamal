@@ -1,6 +1,7 @@
 import { Form, Button, Col, Input, Popover, Progress, Row, Select, message } from 'antd';
 import React, { FC, useState, useEffect } from 'react';
-import { Link, connect, router, FormattedMessage, formatMessage, Dispatch } from 'umi';
+// import { Link, connect, router, FormattedMessage, formatMessage, Dispatch } from 'umi';
+import { Link, connect, FormattedMessage, formatMessage, Dispatch } from 'umi';
 
 import { StateType } from './model';
 import styles from './style.less';
@@ -67,12 +68,12 @@ const Register: FC<RegisterProps> = ({ submitting, dispatch, userAndregister }) 
     const account = form.getFieldValue('mail');
     if (userAndregister.status === 'ok') {
       message.success('注册成功！');
-      router.push({
-        pathname: '/user/register-result',
-        state: {
-          account,
-        },
-      });
+      // router.push({
+      //   pathname: '/user/register-result',
+      //   state: {
+      //     account,
+      //   },
+      // });
     }
   }, [userAndregister]);
   useEffect(

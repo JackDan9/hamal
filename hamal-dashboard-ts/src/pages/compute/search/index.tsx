@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 
 import { Input } from 'antd';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { connect, router } from 'umi';
+// import { connect, router } from 'umi';
+import { connect } from 'umi';
 
 interface SearchProps {
   match: {
@@ -15,23 +16,23 @@ interface SearchProps {
 }
 
 class Search extends Component<SearchProps> {
-  handleTabChange = (key: string) => {
-    const { match } = this.props;
-    const url = match.url === '/' ? '' : match.url;
-    switch (key) {
-      case 'articles':
-        router.push(`${url}/articles`);
-        break;
-      case 'applications':
-        router.push(`${url}/applications`);
-        break;
-      case 'projects':
-        router.push(`${url}/projects`);
-        break;
-      default:
-        break;
-    }
-  };
+  // handleTabChange = (key: string) => {
+  //   const { match } = this.props;
+  //   const url = match.url === '/' ? '' : match.url;
+  //   switch (key) {
+  //     case 'articles':
+  //       router.push(`${url}/articles`);
+  //       break;
+  //     case 'applications':
+  //       router.push(`${url}/applications`);
+  //       break;
+  //     case 'projects':
+  //       router.push(`${url}/projects`);
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  // };
 
   handleFormSubmit = (value: string) => {
     // eslint-disable-next-line no-console
