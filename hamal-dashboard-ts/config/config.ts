@@ -105,6 +105,12 @@ export default defineConfig({
               name: 'service',
               routes: [
                 {
+                  name: 'my-services',
+                  icon: 'smile',
+                  path: '/service/my-services',
+                  component: './service/my-services',
+                },
+                {
                   name: 'basic-form',
                   icon: 'smile',
                   path: '/service/basic-form',
