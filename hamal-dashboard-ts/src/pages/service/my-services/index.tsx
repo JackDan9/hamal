@@ -134,6 +134,7 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             type="primary" 
                             style={{ marginLeft: 8 }} 
                             icon={<PlayCircleOutlined />}
+                            disabled={!hasSelected}
                         >
                             打开
                         </Button>
@@ -142,6 +143,7 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             type="primary" 
                             style={{ marginLeft: 8 }} 
                             icon={<PoweroffOutlined />}
+                            disabled={!hasSelected}
                         >
                             关闭
                         </Button>
@@ -150,6 +152,7 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             type="primary" 
                             style={{ marginLeft: 8 }}
                             icon={<UserOutlined />}
+                            disabled={!hasSelected}
                         >
                             虚拟机控制台
                         </Button>
@@ -158,6 +161,7 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             type="primary" 
                             style={{ marginLeft: 8 }}
                             icon={<MinusCircleOutlined />}
+                            disabled={!hasSelected}
                         >
                             删除虚拟机
                         </Button>
