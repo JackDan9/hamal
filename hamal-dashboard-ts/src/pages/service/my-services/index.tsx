@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Steps, Table, Tag, Space, Radio, Divider, Button } from 'antd';
-import { SyncOutlined } from '@ant-design/icons';
+import { SyncOutlined, PlusCircleOutlined, PlayCircleOutlined, PoweroffOutlined, UserOutlined, MinusCircleOutlined } from '@ant-design/icons';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect, FormattedMessage, formatMessage } from 'umi';
 import { MyServicesStateType } from './model';
@@ -122,16 +122,44 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             Reload
                         </Button>
 
-                        <Button type="primary" style={{ marginLeft: 8 }}>
+                        <Button 
+                            type="primary" 
+                            style={{ marginLeft: 8 }} 
+                            icon={<PlusCircleOutlined />}
+                        >
                             添加虚拟机
                         </Button>
 
-                        <Button type="primary" st le={{ marginLeft: 8 }}>
-                            删除虚拟机
+                        <Button 
+                            type="primary" 
+                            style={{ marginLeft: 8 }} 
+                            icon={<PlayCircleOutlined />}
+                        >
+                            打开
                         </Button>
 
-                        <Button type="primary" style={{ marginLeft: 8 }}>
-                            迁移虚拟机
+                        <Button 
+                            type="primary" 
+                            style={{ marginLeft: 8 }} 
+                            icon={<PoweroffOutlined />}
+                        >
+                            关闭
+                        </Button>
+
+                        <Button 
+                            type="primary" 
+                            style={{ marginLeft: 8 }}
+                            icon={<UserOutlined />}
+                        >
+                            虚拟机控制台
+                        </Button>
+
+                        <Button 
+                            type="primary" 
+                            style={{ marginLeft: 8 }}
+                            icon={<MinusCircleOutlined />}
+                        >
+                            删除虚拟机
                         </Button>
                     </div>
 
