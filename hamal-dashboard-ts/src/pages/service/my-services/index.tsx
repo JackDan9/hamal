@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Steps, Table, Tag, Space, Radio, Divider, Button } from 'antd';
-import { SyncOutlined, PlusCircleOutlined, PlayCircleOutlined, PoweroffOutlined, UserOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { SyncOutlined, PlusCircleOutlined, PlayCircleOutlined, PoweroffOutlined, UserOutlined, MinusCircleOutlined, MoreOutlined } from '@ant-design/icons';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { connect, FormattedMessage, formatMessage } from 'umi';
 import { MyServicesStateType } from './model';
@@ -160,6 +160,14 @@ const MyServices: React.FC<MyServicesProps> = ({ }) => {
                             icon={<MinusCircleOutlined />}
                         >
                             删除虚拟机
+                        </Button>
+
+                        <Button
+                            type="primary"
+                            style={{ marginLeft: 8 }}
+                            icon={<MoreOutlined />}
+                        >
+                            更多
                         </Button>
                     </div>
 
