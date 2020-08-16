@@ -50,7 +50,7 @@ class Service(service.Service):
         self.rpcserver = None
 
     def start(self):
-        if CONF.use_rpc:
+        if CONF.wsgi.use_rpc:
             target = messaging.Target(topic=self.topic, server=self.host)
 
             endpoints = [
@@ -142,7 +142,7 @@ class WSGIService(service.ServiceBase):
                    (worker_name, self.workers))
             raise exception.InvalidInput(msg)
 
-        self.use_ssl = use_ssl or CONF.use_ssl
+        self.use_ssl = use_ssl or CONF.wsgi.use_ssl
         self.server = wsgi.Server(name,
                                   self.app,
                                   host=self.host,

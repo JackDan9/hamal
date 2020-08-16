@@ -23,19 +23,28 @@ SHOULD include dedicated exception logging.
 """
 
 import sys
+import http.client
+import json
 
 from oslo_config import cfg
 from oslo_log import log as logging
+from oslo_utils import encodeutils
 import six
 import webob.exc
 from webob.util import status_generic_reasons
 from webob.util import status_reasons
 
 import hamal.conf
-from hamal.i18n import _
+from hamal.i18n import _, _LW
 
 
+CONF = hamal.conf.CONF
 LOG = logging.getLogger(__name__)
+
+HAMAL_API_EXCEPTIONS = set([])
+
+_FATAL_EXCEPTION_FORMAT_ERRORS = False
+
 
 # exc_log_opts = [
 #     cfg.BoolOpt('fatal_exception_format_errors',
@@ -69,10 +78,6 @@ class ConvertedException(webob.exc.WSGIHTTPException):
                 self.title = status_generic_reasons[generic_code]
         self.explanation = explanation
         super(ConvertedException, self).__init__()
-
-
-class Error(Exception):
-    pass
 
 
 class HamalException(Exception):
@@ -137,6 +142,26 @@ class HamalException(Exception):
         return self.msg
 
 
+class HttpException(Exception):
+    """A exception for http"""
+    
+    def __init__(self, code, message=None):
+        self.code = code
+        super(HttpException, self).__init__(json.dumps({'code': code, 'message': message}))
+
+
+class TimeoutHttpException(HttpException):
+    """A exception for timeout http"""
+
+    def __init__(self, code=None, message=None):
+        if not code:
+            # code is 408 means Request Timeout
+            code = 408
+        if not message:
+            message = _('Wait Time Out')
+        super(TimeoutHttpException, self).__init__(code, message)
+
+
 class Invalid(HamalException):
     message = _("Unacceptable parameters.")
     code = 400
@@ -197,4 +222,82 @@ class LicenseExc(ConvertedException):
                 generic_code = self.code // 100
                 self.title = status_generic_reasons[generic_code]
         self.explanation = explanation
-        super(ConvertedException, self).__init__()
+        super(LicenseExc, self).__init__()
+
+
+class _HamalExceptionMeta(type):
+    """Automatically Register the Exception in 'HAML_API_EXCEPTIONS' list.
+    
+    The `HAMAL_API_EXCEPTIONS` list is utilized by flask to register a 
+    handler to emit sane details when the exception occurs.
+    """
+
+    def __new__(mcs, name, bases, class_dict):
+        """Create a new instance and register with HAMAL_API_EXCEPTIONS."""
+        cls = type.__new__(mcs, name, bases, class_dict)
+        HAMAL_API_EXCEPTIONS.add(cls)
+        return cls
+
+def _format_with_unicode_kwargs(msg_format, kwargs):
+    try:
+        return msg_format % kwargs
+    except UnicodeDecodeError:
+        try:
+            kwargs = {k: encodeutils.safe_decode(v)
+                      for k, v in kwargs.items()}
+        except UnicodeDecodeError:
+            # NOTE(jackdan): This is the complete failure case 
+            # at least by showing the template we have some idea 
+            # of where the error is coming from
+            return msg_format
+    
+        return msg_format % kwargs
+
+
+class Error(Exception, metaclass=_HamalExceptionMeta):
+    """Base error class.
+    
+    Child classes should define an HTTP status code, title, and a 
+    message_format.
+
+    """
+    code = None
+    title = None
+    message_format = None
+
+    def __init__(self, message=None, **kwargs):
+        try:
+            message = self._build_message(message, **kwargs)
+        except KeyError:
+            # if you see this warning in you logs, please raise a bug report
+            if _FATAL_EXCEPTION_FORMAT_ERRORS:
+                raise
+            else:
+                LOG.warning(_LW('missing exception kwargs (proprammer error)'))
+                message = self.message_format
+        
+        super(Error, self).__init__(message)
+    
+    def _build_message(self, message, **kwargs):
+        """Build and returns an exception message.
+        
+        :raise KeyError: given insufficient kwargs
+
+        """
+        if message:
+            return message
+        return _format_with_unicode_kwargs(self.message_format, kwargs)
+
+
+class ValidationError(Error):
+    message_format = _("Exception to find %(attribute)s in %(target)s."
+                       " The server could not comply with the request"
+                       " since it is either malformed or otherwise"
+                       " incorrect. The client is assumed to be in error.")
+    code = int(http.client.BAD_REQUEST)
+    title = http.client.responses[http.client.BAD_REQUEST]
+
+
+class PasswordValidationError(ValidationError):
+    message_format = _("The password does not match the requirements:"
+                       " %(detail)s.")

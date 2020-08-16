@@ -1,0 +1,7 @@
+[console_scripts]
+hamal-api = hamal.cmd.api:main
+hamal-engine = hamal.cmd.engine:main
+
+[oslo.config.opts]
+hamal = hamal.conf.opts:list_opts
+

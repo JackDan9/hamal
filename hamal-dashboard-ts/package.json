@@ -86,7 +86,7 @@
     "react-fittext": "^1.0.0",
     "react-helmet-async": "^1.0.4",
     "react-router": "^4.3.1",
-    "umi": "^3.0.14",
+    "umi": "^3.2.10",
     "umi-request": "^1.0.8",
     "use-merge-value": "^1.0.1"
   },

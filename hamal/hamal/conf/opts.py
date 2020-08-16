@@ -1,4 +1,4 @@
-# Copyright
+# Copyright 2020 Hamal, Inc.
 
 import copy
 import itertools

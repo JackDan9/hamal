@@ -6,6 +6,8 @@ import six
 from hamal.api import extensions
 from hamal.api import server
 from hamal.api import versions
+from hamal.api.v1.vmware import servers
+from hamal.api.v1.openstack import instances
 
 
 def _create_controller(main_controller, action_controller_list):
@@ -20,12 +22,25 @@ def _create_controller(main_controller, action_controller_list):
 
 version_controller = functools.partial(_create_controller,
                                        versions.VersionsController, [])
+server_controller = functools.partial(_create_controller,
+                                      servers.ServersController, [])
+instance_controller = functools.partial(_create_controller,
+                                        instances.InstancesController, [])
+
 
 ROUTE_LIST = (
     ('', '/'),
     ('/', {
         'GET': [version_controller, 'index']
     }),
+    ('/servers', {
+        'GET': [server_controller, 'index'],
+        'POST': [server_controller, 'create']
+    }),
+    ('/instances', {
+        'GET': [instance_controller, 'index'],
+        'POST': [instance_controller, 'create']
+    })
 )
 
 

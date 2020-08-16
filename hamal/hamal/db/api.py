@@ -13,23 +13,139 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Defines interface for DB access.
+
+Functions in this module are imported into the hamal.db namespace. Call these
+functions from hamal.db namespace, not the hamal.db.api namespace.
+
+All functions in this module return objects that implement a dictionary-like
+interface. Currently, many of these objects are sqlalchemy objects that
+implement a dictionary interface. However, a future goal is to have all of
+these objects be simple dictionaries.
+
+"""
+
+
 import threading
 
 from oslo_db import exception as db_exc
 from oslo_db import options
+from oslo_db import concurrency
 from oslo_db.sqlalchemy import session as db_session
 from oslo_log import log as logging
 
 import hamal.conf
-from hamal.db import models
+from hamal.db import constants
+from hamal.db.sqlachemy import models
 from hamal.db.models import BASE
 from hamal.i18n import _
+from hamal.auth import password_hashing
 
 CONF = hamal.conf.CONF
+
+# NOTE(jackdan): These constants are re-defined in this module to preserve
+# existing references to them.
+MAX_INT = constants.MAX_INT
+SQL_SP_FLOAT_MAX = constants.SQL_SP_FLOAT_MAX
+
+_BACKEND_MAPPING = {'sqlalchemy': 'hamal.db.sqlalchemy.api'}
+
+IMPL = concurrency.TpoolDbapiWrapper(CONF, backend_mapping=_BACKEND_MAPPING)
+
 LOG = logging.getLogger(__name__)
 
-options.set_defaults(CONF,
-                     connection='mysql+pymysql://root:secret@192.168.1.117/hamal')
+
+# ###################
+
+
+# def constraint(**conditions):
+#     """Return a constraint object suitable for use with some updates"""
+#     return IMPL.constraint(**conditions)
+
+
+# def equal_any(*values):
+#     """Return an equality condition object suitable for use in a constraint, 
+    
+#     Equal_any conditions require that a model object's attribute equal any 
+#     one of the given values.
+#     """
+#     return IMPL.equal_any(*values)
+
+
+# def not_equal(*values):
+#     """Return an inequality condition object suitable for use in a constraint.
+    
+#     Not_equal conditions require that a model object's attribute differs from 
+#     all of the given values.
+#     """
+#     return IMPL.not_equal(*values)
+
+
+# #####################
+
+
+# def select_db_reader_mode(f):
+#     """Decorator to select synchronous or asynchronous reader mode.
+    
+#     The kwarg argument 'use_slave' defines reader mode. Asynchronous reader
+#     will be used if 'use_slave' is True and synchronous reader otherwise.
+#     """
+#     return IMPL.select_db_reader_mode(f)
+
+
+# #####################
+
+
+# def service_destroy(context, service_id):
+#     """Destroy the service or raise if it does not exist."""
+#     return IMPL.service_destroy(context, service_id)
+
+
+# def service_get(context, service_id):
+#     """Get a service or raise if it does not exist."""
+#     return IMPL.service_get(context, service_id)
+
+
+# def service_get_by_uuid(context, service_uuid):
+#     """Get a service by it's uuid or raise ServiceNotFound if it does not exist."""
+#     return IMPL.service_get_by_uuid(context, service_uuid)
+
+
+# def service_get_minimum_version(context, binary):
+#     """Get the minimum service version in the database."""
+#     return IMPL.service_get_minimum_version(context, binary)
+
+
+# def service_get_by_host_and_topic(context, host, topic):
+#     """Get a service by hostname and topic it listens to."""
+#     return IMPL.service_get_by_host_and_topic(context, host, topic)
+
+
+# def service_get_by_host_and_binary(context, host, binary):
+#     """Get a service by hostname and binary it listens to."""
+#     return IMPL.service_get_by_host_and_binary(context, host, binary)
+
+
+# def service_get_all(context, disabled=None):
+#     """Get all services."""
+#     return IMPL.service_get_all(context, disabled)
+
+
+# def service_get_all_by_topic(context, topic):
+#     """Get all services for a given topic."""
+#     return IMPL.service_get_all_by_topic(context, topic)
+
+
+# def service_get_all_by_binary(context, binary, include_disabled=False):
+#     """Get services for a given binary.
+    
+#     Includes disabled services if 'include_disabled' parameter is True
+#     """
+#     return IMPL.service_get_all_by_binary(context, binary, 
+#                                           include_disabled=include_disabled)
+
+
+# options.set_defaults(CONF, connection='mysql+pymysql://root:passw0rd@127.0.0.1/hamal')
 
 _LOCK = threading.Lock()
 _FACADE = None
@@ -128,14 +244,35 @@ def register(uuid, name, password, email, enabled=1):
     return auth_models
 
 
-def auth(name, password):
+def auth(username, password):
+    """authenticate user information,
+
+    :param username: context to username
+    :param string: context to password
+    """
     session = get_session()
-    query = session.query(models.Auth)
-    user = query.filter_by(name=name).first()
-    if user is None or \
-            password != user.password:
-        return False
-    return True
+    query = session.query(models.User)
+    local_user_query = session.query(models.LocalUser)
+    password_query = session.query(models.Password)
+    
+    # user information
+    user = query.filter_by(email=username).first()
+    
+    # local user information
+    local_user_id = user.id
+    local_user = local_user_query.filter_by(user_id=local_user_id).first()
+    
+    # user password information
+    user_password_id = local_user.id
+    user_password = password_query.filter_by(local_user_id=user_password_id).first()
+
+    # verify user password
+    hash_password = password_hashing.verify_password(password, user_password.password)
+    
+    if user is None or not hash_password:
+        return None
+    else:
+        return user
 
 
 def task_get_all():
@@ -176,7 +313,7 @@ def openstack_task_get_by_state_init(init):
     query = session.query(models.OpenstackTasks)
     openstack_task = query.filter_by(state=init).first()
     return openstack_task
-
+ 
 
 def task_create(uuid, name, vc, user, pwd, uri, osp_network, osp_flavor, osp_storage, osp_hamal_type, state, percent=0):
     """The value of state could be init or converting

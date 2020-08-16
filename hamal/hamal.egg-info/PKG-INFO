@@ -1,0 +1,24 @@
+Metadata-Version: 1.2
+Name: hamal
+Version: 0.0.1.dev16
+Summary: Basic Python framework including REST API, database access, RPC, etc.
+Home-page: https://github.com/JackDan9/
+Author: Open Community JackDan Developer
+Author-email: j.dan92016@gmail.com
+License: UNKNOWN
+Description: 
+        
+        
+Platform: UNKNOWN
+Classifier: Environment :: OpenStack
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: System Administrators
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: POSIX :: Linux
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Requires-Python: >= 3.6

@@ -4,6 +4,17 @@
 # System Files
 .DS_Store
 
+# Python Virtual Management Files
+.venv
+.venv/*
+
+# Build Files
+build
+build/*
+
+# UMI Files
+.umi
+.umi/*
 
 #IDE VSCode Files
 /hamal-dashboard-ts/.vscode/*

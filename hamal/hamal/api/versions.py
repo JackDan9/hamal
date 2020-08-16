@@ -12,7 +12,7 @@ _KNOWN_VERSIONS = {
         "id": "v1.0",
         "status": "SUPPORTED",
         "version": "",
-        "updated": "2017-06-20T20:20:00Z",
+        "updated": "2020-06-20T20:20:00Z",
     },
 }
 

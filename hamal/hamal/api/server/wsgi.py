@@ -307,7 +307,6 @@ class ResponseObject(object):
     @property
     def code(self):
         """Retrieve the response status."""
-
         return self._code or self._default_code
 
     @property
@@ -358,7 +357,8 @@ class ResourceExceptionHandler(object):
                 code=ex_value.code, explanation=unicode(ex_value)))
         elif isinstance(ex_value, TypeError):
             exc_info = (ex_type, ex_value, ex_traceback)
-            LOG.error('Exception handling resource: %s' % ex_value,
+            LOG.error('Exception handling resource: %(ex_value)s', 
+                      {'ex_value': ex_value},
                       exc_info=exc_info)
             raise Fault(webob.exc.HTTPBadRequest())
         elif isinstance(ex_value, Fault):

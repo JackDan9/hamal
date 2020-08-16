@@ -1,6 +1,22 @@
-# Copyright
+# Copyright 2020 Open Community Github
+# Copyright 2010 United States Government as represented by the
+# Administrator of the National Aeronautics and Space Administration.
+# Copyright 2010 OpenStack Foundation
+# All Rights Reserved.
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
 
-"""Methods for working with eventlet WSGI servers."""
+"""Utility methods for working with WSGI servers."""
 
 from __future__ import print_function
 
@@ -17,7 +33,7 @@ from oslo_utils import excutils
 
 import hamal.conf
 from hamal import exception
-from hamal.i18n import _
+from hamal.i18n import _, _LE, _LI
 
 
 CONF = hamal.conf.CONF
@@ -39,12 +55,13 @@ class Server(service.ServiceBase):
         :param host: IP address to serve the application.
         :param port: Port number to server the application.
         :param pool_size: Maximum number of eventlets to spawn concurrently.
+        
         :returns: None
 
         """
         # Allow operators to customize http requests max header line size.
-        eventlet.wsgi.MAX_HEADER_LINE = CONF.max_header_line
-        self.client_socket_timeout = CONF.client_socket_timeout or None
+        eventlet.wsgi.MAX_HEADER_LINE = CONF.wsgi.max_header_line
+        self.client_socket_timeout = CONF.wsgi.client_socket_timeout or None
         self.name = name
         self.app = app
         self._host = host or "0.0.0.0"
@@ -59,7 +76,7 @@ class Server(service.ServiceBase):
 
         if backlog < 1:
             raise exception.InvalidInput(
-                reason='The backlog must be more than 1')
+                reason=_('The backlog must be more than 1'))
 
         bind_addr = (host, port)
         # TODO(dims): eventlet's green dns/socket module does not actually
@@ -78,12 +95,12 @@ class Server(service.ServiceBase):
         try:
             self._socket = eventlet.listen(bind_addr, family, backlog=backlog)
         except EnvironmentError:
-            LOG.error("Could not bind to %(host)s:%(port)s",
+            LOG.error(_LE("Could not bind to %(host)s:%(port)s"),
                       {'host': host, 'port': port})
             raise
 
         (self._host, self._port) = self._socket.getsockname()[0:2]
-        LOG.info("%(name)s listening on %(_host)s:%(_port)s",
+        LOG.info(_LI("%(name)s listening on %(_host)s:%(_port)s"),
                  {'name': self.name, '_host': self._host, '_port': self._port})
 
     def start(self):
@@ -109,13 +126,13 @@ class Server(service.ServiceBase):
         if hasattr(socket, 'TCP_KEEPIDLE'):
             dup_socket.setsockopt(socket.IPPROTO_TCP,
                                   socket.TCP_KEEPIDLE,
-                                  CONF.tcp_keepidle)
+                                  CONF.wsgi.tcp_keepidle)
 
         if self._use_ssl:
             try:
-                ca_file = CONF.ssl_ca_file
-                cert_file = CONF.ssl_cert_file
-                key_file = CONF.ssl_key_file
+                ca_file = CONF.wsgi.ssl_ca_file
+                cert_file = CONF.wsgi.ssl_cert_file
+                key_file = CONF.wsgi.ssl_key_file
 
                 if cert_file and not os.path.exists(cert_file):
                     raise RuntimeError(
@@ -141,7 +158,7 @@ class Server(service.ServiceBase):
                     'cert_reqs': ssl.CERT_NONE,
                 }
 
-                if CONF.ssl_ca_file:
+                if CONF.wsgi.ssl_ca_file:
                     ssl_kwargs['ca_certs'] = ca_file
                     ssl_kwargs['cert_reqs'] = ssl.CERT_REQUIRED
 
@@ -162,9 +179,9 @@ class Server(service.ServiceBase):
             'custom_pool': self._pool,
             'log': self._logger,
             'debug': False,
-            'keepalive': CONF.wsgi_keep_alive,
+            'keepalive': CONF.wsgi.wsgi_keep_alive,
             'socket_timeout': self.client_socket_timeout
-            }
+        }
 
         self._server = eventlet.spawn(**wsgi_kwargs)
 

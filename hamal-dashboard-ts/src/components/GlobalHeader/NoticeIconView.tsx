@@ -61,6 +61,7 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
       return {};
     }
 
+    debugger;
     const newNotices = notices.map((notice) => {
       const newNotice = { ...notice };
 

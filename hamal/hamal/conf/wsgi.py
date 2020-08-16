@@ -90,4 +90,4 @@ def register_opts(conf):
 
 
 def list_opts():
-    return {wsgi_group: WSGI_ALL_OPTS}
+    return { wsgi_group: WSGI_ALL_OPTS }
