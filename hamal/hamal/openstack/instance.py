@@ -77,7 +77,7 @@ class Instance(SourceBase):
             try:
                 self.show()
             except HamalException as he:
-                LOG.exception(_LE('Hamal Exception with the %(he)s', {'he': he}))
+                LOG.exception(_LE('Hamal Exception with the %(he)s'), {'he': he})
                 if he.code == 404:
                     return True
         

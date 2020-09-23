@@ -12,6 +12,7 @@ from hamal.i18n import _, _LE, _LI, _LW
 from hamal.exception import HamalException
 from webob import Request
 import requests
+from requests import HTTPError
 
 
 LOG = logging.getLogger(__name__)
